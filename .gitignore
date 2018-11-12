@@ -1,0 +1,11 @@
+node_modules/
+/uploads
+themes/leoauri_theme
+themes/twentyseventeen
+
+# See only specific plugins
+/plugins/*
+!plugins/bandcamp-embed
+!plugins/make-quotes
+!plugins/post-tags-and-categories-for-pages
+!plugins/vimeo-embed
