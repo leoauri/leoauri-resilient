@@ -17,7 +17,7 @@ License URI:  https://www.gnu.org/licenses/gpl-2.0.html
 */
 
 // Create the Vimeo embed
-function vimeo_embed($atts) {
+function vimeo_embed($atts, $content, $tag) {
   extract(shortcode_atts(array(
     'id' => '',
     ), $atts));
@@ -31,6 +31,7 @@ function vimeo_embed($atts) {
 // register shortcode
 function register_shortcode() {
   add_shortcode('vimeo', '\leoauriVimeoEmbed\vimeo_embed');
+  add_shortcode('youtube', '\leoauriVimeoEmbed\vimeo_embed');
 }
 add_action('init', '\leoauriVimeoEmbed\register_shortcode');
 
