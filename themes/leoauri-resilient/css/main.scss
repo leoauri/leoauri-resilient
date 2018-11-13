@@ -474,7 +474,7 @@ body > nav > div {
   padding: 1em;
   z-index: 10;
   transition: right 0.5s;
-  box-shadow: 0 0 4px 0px $our-dark-gray;
+  box-shadow: 0 0 40px 0px $our-dark-gray;
 
   &.shown {
     right: 0;
