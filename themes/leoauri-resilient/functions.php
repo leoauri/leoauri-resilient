@@ -72,3 +72,15 @@ remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
 remove_action( 'admin_print_styles', 'print_emoji_styles' );
 
 remove_action('wp_head', 'wp_resource_hints', 2);
+
+
+// Enqueue scripts
+function enqueue_scripts() {
+  // shim for js classList
+  wp_register_script('shimClassList', get_template_directory_uri() . 'js/classList.min.js', array(), '1.2.20171210', false);
+  wp_enqueue_script('shimClassList');
+
+  // navbar is enqueued in its part
+  wp_register_script('navbar', get_template_directory_uri() . '/js/navbar.js', array('shimClassList'), '0.2', true);
+}
+add_action('wp_enqueue_scripts', '\leoauriResilient\enqueue_scripts');

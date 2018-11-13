@@ -4,7 +4,7 @@ namespace leoauriResilient;
  * leoauri Resilient
  **/
 
-wp_enqueue_script('navbar', get_template_directory_uri() . '/js/navbar.js', array(), '0.1', true);
+wp_enqueue_script('navbar');
 
 ?>
 <nav>
