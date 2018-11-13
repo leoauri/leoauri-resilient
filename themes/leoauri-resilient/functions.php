@@ -77,10 +77,16 @@ remove_action('wp_head', 'wp_resource_hints', 2);
 // Enqueue scripts
 function enqueue_scripts() {
   // shim for js classList
-  wp_register_script('shimClassList', get_template_directory_uri() . 'js/classList.min.js', array(), '1.2.20171210', false);
+  wp_register_script('shimClassList', get_template_directory_uri() . '/js/classList.min.js', array(), '1.2.20171210', false);
   wp_enqueue_script('shimClassList');
 
   // navbar is enqueued in its part
   wp_register_script('navbar', get_template_directory_uri() . '/js/navbar.js', array('shimClassList'), '0.2', true);
+
+  // infinite scroll
+  wp_register_script('infiniteScrollSensor', get_template_directory_uri() . '/js/infinite-scroll.js', array(), '2fa885fe1c98920895305eac8b904971268062f6', true);
+  wp_enqueue_script('infiniteScrollSensor');
+  wp_register_script('makeInfiniteScroll', get_template_directory_uri() . '/js/make-infinite-scroll.js', array('infiniteScrollSensor'), '0.1', true);
+  wp_enqueue_script('makeInfiniteScroll');
 }
 add_action('wp_enqueue_scripts', '\leoauriResilient\enqueue_scripts');
