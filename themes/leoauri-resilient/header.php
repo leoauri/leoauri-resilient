@@ -22,6 +22,8 @@ namespace leoauriResilient;
 </head>
 <?php if (is_category()) : ?>
 <body class="category-<?php echo get_the_category()[0]->slug; ?>">
+<?php elseif (is_page()) : ?>
+<body class="page-<?php echo get_post_field('post_name'); ?>">
 <?php else : ?>
 <body>
 <?php endif; ?>

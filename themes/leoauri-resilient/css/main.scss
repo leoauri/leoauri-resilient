@@ -78,6 +78,16 @@ $our-paint-light: $color-primary-3;
   font-display: swap;
 }
 
+
+
+%nobullet-list {
+  list-style-type: none;
+  line-height: 1em;
+  margin: 1em 0;
+}
+
+
+
 @media print {
   @page {
     margin: 1in 0.5in 0.5in;
@@ -356,12 +366,15 @@ header hgroup {
 header hgroup h1::first-line {
   font-size: 1.25em;
 }
-header hgroup,
-header > a {
-  display: block;
+%our-content-width {
   max-width: 25em;
   margin-left: auto;
   margin-right: auto;
+}
+header hgroup,
+header > a {
+  display: block;
+  @extend %our-content-width;
 }
 header > a {
   font-family: Futura, 'Gill Sans', 'Helvetica Neue', Arial, sans-serif;
@@ -380,9 +393,7 @@ header a:focus {
 
 main {
   display: block;
-  max-width: 25em;
-  margin-left: auto;
-  margin-right: auto;
+  @extend %our-content-width;
   padding: 1em;
 }
 main ::selection {
@@ -459,8 +470,69 @@ main > p:first-of-type cite {
     line-height: .8;
   }
 }
-// 563
-// 736
+
+/* Navigation page */
+
+.page-navigation {
+  background-color: $our-black;
+  color: $our-white;
+}
+
+.page-navigation > nav {
+  @extend %our-content-width;
+  padding: 1em;
+  li {
+    @extend %nobullet-list;
+  }
+}
+
+
+/* Navigation pane */
+body > nav > div {
+  background-color: $our-black;
+  color: $our-white;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: -50%;
+  overflow: scroll;
+  padding: 1em;
+  z-index: 10;
+  transition: right 0.5s;
+
+  &.shown {
+    right: 0;
+  }
+
+  & > a {
+    &:link, &:visited {
+      color: $our-white;
+    }
+    &:hover, &:active {
+      color: $our-highlight;
+      background-color: inherit;
+    }
+  }
+  li {
+    @extend %nobullet-list;
+  }
+}
+
+#nav-on-switch {
+    position: fixed;
+    top: calc(1em / 1.6 / 1.7);
+    right: calc(1em / 1.6);
+    line-height: 1;
+    font-size: 1.6em;
+    color: $our-black;
+    transition: text-shadow 0.5s;
+    text-shadow: 0 0 4px $our-dark-gray;
+    &:hover {
+      color: $our-paint-light;
+      background-color: inherit;
+      text-shadow: 0 0 4px $our-light-gray;
+    }
+}
 
 @media print {
   section {
@@ -507,9 +579,7 @@ footer {
   padding: 1em;
 }
 footer > p {
-  max-width: 25em;
-  margin-left: auto;
-  margin-right: auto;
+  @extend %our-content-width;
 }
 footer a:link,
 footer a:visited {
@@ -520,14 +590,10 @@ footer a:focus {
   color: $our-white;
 }
 footer ul {
-    max-width: 25em;
-    margin-left: auto;
-    margin-right: auto;
+  @extend %our-content-width;
 }
 footer li {
-  list-style-type: none;
-  line-height: 1em;
-  margin: 1em 0;
+  @extend %nobullet-list;
 }
 @media print {
   footer {

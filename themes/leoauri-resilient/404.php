@@ -13,6 +13,8 @@ get_header(); ?>
 </a>
 </header>
 
+<?php get_template_part('parts/navigation'); ?>
+
 <main>
 <h1>404</h1>
 <p>Unfortunately, nothing was found at that URL.</p>
@@ -24,12 +26,15 @@ $search = new \WP_Query(array(
   's' => $request,
   'posts_per_page' => 10,
 ));
-// var_dump($search);
 ?>
-<p>Perhaps you can find what you were looking for via the site navigation (☰).
+
+<p>Perhaps you can find what you were looking for via the site navigation (☰) or the
+<a href="<?php echo esc_url(home_url('/')); ?>">home page</a>.
+
 <?php if ($search->have_posts()) : ?>
 Otherwise, the following related content may help you:
 <?php endif; ?>
+
 </p>
 <?php
 while ($search->have_posts()) :

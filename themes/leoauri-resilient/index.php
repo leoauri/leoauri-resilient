@@ -13,6 +13,8 @@ get_header(); ?>
 </a>
 </header>
 
+<?php get_template_part('parts/navigation'); ?>
+
 <main>
 <?php
 while (have_posts()):

@@ -14,6 +14,8 @@ get_header(); ?>
 </hgroup>
 </header>
 
+<?php get_template_part('parts/navigation'); ?>
+
 <main>
 
 <?php
