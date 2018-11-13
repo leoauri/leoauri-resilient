@@ -527,9 +527,14 @@ body > nav > div {
     color: $our-black;
     transition: text-shadow 0.5s;
     text-shadow: 0 0 4px $our-dark-gray;
+    &:focus {
+      background-color: inherit;
+      border-color: inherit;
+    }
     &:hover {
       color: $our-paint-light;
       background-color: inherit;
+      border-color: inherit;
       text-shadow: 0 0 4px $our-light-gray;
     }
 }
