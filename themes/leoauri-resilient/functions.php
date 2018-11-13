@@ -74,6 +74,49 @@ remove_action( 'admin_print_styles', 'print_emoji_styles' );
 remove_action('wp_head', 'wp_resource_hints', 2);
 
 
+// Remove discovery services
+remove_action('wp_head', 'rsd_link');
+remove_action('wp_head', 'wlwmanifest_link');
+remove_action('wp_head', 'wp_generator');
+remove_action('wp_head', 'wp_shortlink_wp_head');
+
+
+// Remove oEmbed
+remove_action('wp_head', 'wp_oembed_add_discovery_links', 10);
+
+
+define('KILL_FEEDS', false);
+if (KILL_FEEDS) {
+  // Remove RSS
+  remove_action('wp_head', 'feed_links_extra', 3);
+  remove_action('wp_head', 'feed_links', 2);
+
+  function feed_die() {
+    // header() NOT WORKING
+    header('HTTP/1.0 404 Not Found');
+    wp_die( __( 'There are no feeds here. <a href="'. esc_url( home_url( '/' ) ) .'">HOME</a>' ) );
+  }
+
+  add_action('do_feed', '\leoauriResilient\feed_die', 1);
+  add_action('do_feed_rdf', '\leoauriResilient\feed_die', 1);
+  add_action('do_feed_rss', '\leoauriResilient\feed_die', 1);
+  add_action('do_feed_rss2', '\leoauriResilient\feed_die', 1);
+  add_action('do_feed_atom', '\leoauriResilient\feed_die', 1);
+  add_action('do_feed_rss2_comments', '\leoauriResilient\feed_die', 1);
+  add_action('do_feed_atom_comments', '\leoauriResilient\feed_die', 1);
+}
+
+
+// Customise RSS
+add_theme_support('automatic-feed-links');
+
+// display only main (not comments) feed links
+function return_false() {
+  return false;
+}
+add_filter('feed_links_show_comments_feed', '\leoauriResilient\return_false');
+
+
 // Enqueue scripts
 function enqueue_scripts() {
   // shim for js classList
@@ -83,10 +126,7 @@ function enqueue_scripts() {
   // navbar is enqueued in its part
   wp_register_script('navbar', get_template_directory_uri() . '/js/navbar.js', array('shimClassList'), '0.2', true);
 
-  // infinite scroll
-  wp_register_script('infiniteScrollSensor', get_template_directory_uri() . '/js/infinite-scroll.js', array(), '2fa885fe1c98920895305eac8b904971268062f6', true);
-  wp_enqueue_script('infiniteScrollSensor');
-  wp_register_script('makeInfiniteScroll', get_template_directory_uri() . '/js/make-infinite-scroll.js', array('infiniteScrollSensor'), '0.1', true);
-  wp_enqueue_script('makeInfiniteScroll');
+  // remove oEmbed js
+  wp_deregister_script('wp-embed');
 }
 add_action('wp_enqueue_scripts', '\leoauriResilient\enqueue_scripts');
