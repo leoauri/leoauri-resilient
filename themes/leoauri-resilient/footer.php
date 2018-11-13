@@ -17,8 +17,6 @@ namespace leoauriResilient;
 </nav>
 </footer>
 
-<!-- <script src="<?php echo get_template_directory_uri(); ?>/js/scripts.js" defer></script> -->
-
 <?php wp_footer(); ?>
 
 </body>
