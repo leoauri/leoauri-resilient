@@ -20,10 +20,22 @@ License URI:  https://www.gnu.org/licenses/gpl-2.0.html
 function bandcamp_embed($atts) {
   extract(shortcode_atts(array(
     'albumid' => '',
+    'trackid' => '',
     'id' => '',
     'link' => '',
     'title' => '',
     ), $atts));
+
+  // Is it a track?
+  if (! $trackid) {
+    $trackid = get_post_custom_values('trackid')[0];
+  }
+  if ($trackid) {
+    $albumid = $trackid;
+    $type = 'track';
+  } else {
+    $type = 'album';
+  }
 
   // Try to get id from alternate attribute
   if (! $albumid) {

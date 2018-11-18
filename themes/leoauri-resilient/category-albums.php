@@ -27,6 +27,15 @@ while ($albumsquery->have_posts()):
 $albumsquery->the_post();
 
 $albumid = get_post_custom_values('albumid')[0];
+
+$trackid = get_post_custom_values('trackid')[0];
+if ($trackid) {
+  $type = 'track';
+  $albumid = $trackid;
+} else {
+  $type = 'album';
+}
+
 if ($albumid) {
   $albumlink = get_post_custom_values('albumlink')[0];
   $albumalt = get_post_custom_values('albumalt')[0];
