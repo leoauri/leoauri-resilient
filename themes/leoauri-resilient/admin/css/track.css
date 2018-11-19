@@ -1,0 +1,7 @@
+#lr_track_settings label input {
+  width: 78%;
+}
+#lr_track_settings label span {
+  display: inline-block;
+  width: 18%;
+}
