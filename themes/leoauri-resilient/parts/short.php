@@ -16,13 +16,10 @@ if (!$frontpageversion) {
 ?>
 
 <section>
-<header>
-<h3><a href="<?php the_permalink(); ?>"><?php echo ($shorttitle) ? $shorttitle : get_the_title(); ?></a></h3>
-</header>
 <?php echo $frontpageversion; ?>
 <div>
 <a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
-More about <?php echo ($shorttitle) ? $shorttitle : 'this'; ?> &rarr;
+About <?php echo ($shorttitle) ? $shorttitle : 'this'; ?> &rarr;
 </a>
 </div>
 </section>
