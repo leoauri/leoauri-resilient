@@ -18,7 +18,7 @@ $fromAlbumPost = get_post_custom_values('from-album-post')[0];
 <?php echo $fallbackText; ?>
 </a>
 </iframe>
-<a href="<?php echo get_permalink($fromAlbumPost); ?>">
+<a href="<?php echo get_permalink($fromAlbumPost); ?>" title="<?php the_title_attribute(array('post' => $fromAlbumPost)); ?>">
 about
 </a>
 </div>
