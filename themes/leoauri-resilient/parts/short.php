@@ -14,12 +14,9 @@ if (!$frontpageversion) {
 
 
 ?>
-
-<section>
+<div class="shorts">
 <?php echo $frontpageversion; ?>
-<div>
 <a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
-About <?php echo ($shorttitle) ? $shorttitle : 'this'; ?> &rarr;
+about
 </a>
 </div>
-</section>

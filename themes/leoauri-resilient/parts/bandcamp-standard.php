@@ -12,8 +12,13 @@ $fromAlbumPost = get_post_custom_values('from-album-post')[0];
 
 
 ?>
+<div class="embed-bandcamp-standard">
 <iframe style="border: 0; width: 100%; height: 120px;" src="https://bandcamp.com/EmbeddedPlayer/album=<?php echo $albumID; ?>/size=large/bgcol=ffffff/linkcol=EE3D00/tracklist=false/artwork=small/track=<?php echo $trackID; ?>/transparent=true/" seamless>
 <a href="<?php echo $fallbackLink; ?>">
 <?php echo $fallbackText; ?>
 </a>
 </iframe>
+<a href="<?php echo get_permalink($fromAlbumPost); ?>">
+about
+</a>
+</div>
