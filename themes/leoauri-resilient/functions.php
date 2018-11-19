@@ -40,20 +40,27 @@ function show_shorts($atts) {
     'category' => '',
     'template' => 'short'
   ), $atts));
+
+  // $post_type = ($tag == 'show_tracks') ? 'tracks'
   global $post;
   $posts = get_posts(array(
     'category_name' => $category,
     'numberposts' => '-1',
     'post_type' => 'any',
-    'orderby' => 'menu_order'
+    'orderby' => 'menu_order date'
   ));
   $output = '';
   foreach ($posts as $post) {
     setup_postdata($post);
-
-    ob_start();
-    require('parts/' . $template . '.php');
-    $output .= ob_get_clean();
+    if ($post->post_type == 'lr_track') {
+      ob_start();
+      require('parts/bandcamp-standard.php');
+      $output .= ob_get_clean();
+    } else {
+      ob_start();
+      require('parts/' . $template . '.php');
+      $output .= ob_get_clean();
+    }
   }
   return $output;
 }
@@ -229,11 +236,11 @@ function save_track_meta_boxes($post_id, $post) {
   }
 
   $metafields = array(
-    "track-ID",
-    "album-ID",
-    "fallback-link",
-    "fallback-text",
-    "from-album-post",
+    'track-ID',
+    'album-ID',
+    'fallback-link',
+    'fallback-text',
+    'from-album-post',
   );
 
   foreach ($metafields as $metafield) {
