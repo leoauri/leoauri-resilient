@@ -5,7 +5,6 @@ namespace leoauriResilient;
  **/
 
 
-// <iframe style="border: 0; width: 100%; height: 120px;" src="https://bandcamp.com/EmbeddedPlayer/album=3440820255/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/artwork=small/track=2991266595/transparent=true/" seamless><a href="http://leoauri.bandcamp.com/album/the-call">The Call by Leo Auri</a></iframe>
 ?>
 <div>
   <label>
