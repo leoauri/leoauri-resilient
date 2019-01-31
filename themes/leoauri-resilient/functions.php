@@ -6,11 +6,14 @@ namespace leoauriResilient;
 
 
 // Autoload all our class definitions
-$classfiles = new \FilesystemIterator( get_stylesheet_directory() . '/classes', \FilesystemIterator::SKIP_DOTS );
-foreach ( $classfiles as $file )
-{
-  /** @noinspection PhpIncludeInspection */
-  ! $file->isDir() and include $file->getRealPath();
+$classesdir = get_stylesheet_directory() . '/classes';
+// Check if classes directory exists
+if (is_dir($classesdir)) {
+  $classfiles = new \FilesystemIterator($classesdir, \FilesystemIterator::SKIP_DOTS);
+  foreach ($classfiles as $file) {
+    /** @noinspection PhpIncludeInspection */
+    ! $file->isDir() and include $file->getRealPath();
+  }
 }
 
 
