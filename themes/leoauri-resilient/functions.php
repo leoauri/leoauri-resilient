@@ -27,7 +27,7 @@ function setup() {
   register_nav_menu('navigation', 'Navigation Menu');
 
 }
-add_action( 'after_setup_theme', '\leoauriResilient\setup' );
+add_action('after_setup_theme', '\leoauriResilient\setup');
 
 
 // add menu order to posts
