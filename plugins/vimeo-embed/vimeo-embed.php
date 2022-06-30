@@ -32,6 +32,7 @@ function vimeo_embed($atts, $content, $tag) {
 function register_shortcode() {
   add_shortcode('vimeo', '\leoauriVimeoEmbed\vimeo_embed');
   add_shortcode('youtube', '\leoauriVimeoEmbed\vimeo_embed');
+  add_shortcode('youtube_skiprel', '\leoauriVimeoEmbed\vimeo_embed');
   add_shortcode('youtube_playlist', '\leoauriVimeoEmbed\vimeo_embed');
 }
 add_action('init', '\leoauriVimeoEmbed\register_shortcode');
