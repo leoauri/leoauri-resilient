@@ -34,6 +34,30 @@ def get_relative_path(file_path: Path, base_dir: Path) -> Path:
     return file_path.relative_to(base_dir)
 
 
+def get_git_head_html_files(repo_root: Path, html_dir: Path) -> List[Path]:
+    """
+    Get list of all HTML files in HEAD under the html_dir directory.
+    Returns absolute paths.
+    """
+    rel_html_dir = html_dir.relative_to(repo_root)
+    try:
+        result = subprocess.run(
+            ["git", "ls-tree", "-r", "--name-only", "HEAD", str(rel_html_dir)],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        # Filter for .html files and convert to absolute paths
+        html_files = []
+        for line in result.stdout.strip().split('\n'):
+            if line and line.endswith('.html'):
+                html_files.append(repo_root / line)
+        return sorted(html_files)
+    except subprocess.CalledProcessError:
+        return []
+
+
 def get_git_head_content(file_path: Path, repo_root: Path) -> Optional[str]:
     """
     Get the content of a file from git HEAD.
@@ -226,37 +250,57 @@ def main():
     # Determine which files to check
     if args.files:
         # Convert provided file paths to absolute paths
-        html_files = []
+        html_files_working = []
         for file_arg in args.files:
             file_path = repo_root / file_arg
-            if not file_path.exists():
-                print(f"Error: {file_arg} does not exist", file=sys.stderr)
-                sys.exit(1)
+            # Allow checking deleted files (not in working directory)
             if not file_path.suffix == ".html":
                 print(f"Warning: {file_arg} is not an HTML file, skipping", file=sys.stderr)
                 continue
-            html_files.append(file_path)
+            html_files_working.append(file_path)
+        # When specific files are provided, also check those files in HEAD
+        html_files_head = []
+        for file_arg in args.files:
+            file_path = repo_root / file_arg
+            if file_path.suffix == ".html":
+                html_files_head.append(file_path)
     else:
-        # Find all HTML files
-        html_files = find_html_files(html_dir)
+        # Find all HTML files in working directory and HEAD
+        html_files_working = find_html_files(html_dir)
+        html_files_head = get_git_head_html_files(repo_root, html_dir)
+
+    # Create sets for comparison
+    working_set = set(html_files_working)
+    head_set = set(html_files_head)
+
+    # Find all files to process
+    all_files = working_set | head_set
 
     # Track results
     differences = []
     new_files = []
+    deleted_files = []
 
     # Compare each file
-    for file_path in html_files:
+    for file_path in sorted(all_files):
         rel_path = get_relative_path(file_path, repo_root)
 
-        # Get HEAD version
-        head_content = get_git_head_content(file_path, repo_root)
+        # Check if file exists in HEAD
+        in_head = file_path in head_set
+        in_working = file_path in working_set
 
-        if head_content is None:
-            # File doesn't exist in HEAD (new file)
+        if in_head and not in_working:
+            # File exists in HEAD but not in working directory (deleted)
+            deleted_files.append(str(rel_path))
+            continue
+
+        if in_working and not in_head:
+            # File exists in working directory but not in HEAD (new file)
             new_files.append(str(rel_path))
             continue
 
-        # Get working tree version
+        # File exists in both, compare them
+        head_content = get_git_head_content(file_path, repo_root)
         working_content = file_path.read_text(encoding="utf-8", errors="ignore")
 
         # Compare
@@ -268,17 +312,26 @@ def main():
             differences.append((str(rel_path), diff_msg))
 
     # Only output if there are differences
-    has_changes = len(differences) > 0 or len(new_files) > 0
+    has_changes = len(differences) > 0 or len(new_files) > 0 or len(deleted_files) > 0
 
     if has_changes:
         if args.name_only:
-            # Just list file names
+            # Just list file names with status prefix
+            for rel_path in deleted_files:
+                print(f"D {rel_path}")
             for rel_path in new_files:
-                print(rel_path)
+                print(f"A {rel_path}")
             for rel_path, _ in differences:
-                print(rel_path)
+                print(f"M {rel_path}")
         else:
             # Show full output
+            if deleted_files:
+                print("DELETED FILES (in HEAD but not in working directory):")
+                print("=" * 80)
+                for rel_path in deleted_files:
+                    print(f"  - {rel_path}")
+                print()
+
             if new_files:
                 print("NEW FILES (not in HEAD):")
                 print("=" * 80)
