@@ -19,6 +19,7 @@ from typing import Tuple, List, Optional
 import difflib
 import subprocess
 import sys
+import argparse
 
 
 def find_html_files(directory: Path) -> List[Path]:
@@ -92,6 +93,21 @@ def compare_html_content(
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Compare HTML files against their git HEAD versions using Beautiful Soup normalization"
+    )
+    parser.add_argument(
+        "--name-only",
+        action="store_true",
+        help="Only show names of files that differ",
+    )
+    parser.add_argument(
+        "files",
+        nargs="*",
+        help="Specific files to compare (relative to repo root). If not specified, compares all HTML files.",
+    )
+    args = parser.parse_args()
+
     # Use the directory containing this script as the repo root
     repo_root = Path(__file__).resolve().parent
     html_dir = repo_root / "leoauri.com"
@@ -101,8 +117,22 @@ def main():
         print(f"Error: {html_dir} does not exist", file=sys.stderr)
         sys.exit(1)
 
-    # Find all HTML files
-    html_files = find_html_files(html_dir)
+    # Determine which files to check
+    if args.files:
+        # Convert provided file paths to absolute paths
+        html_files = []
+        for file_arg in args.files:
+            file_path = repo_root / file_arg
+            if not file_path.exists():
+                print(f"Error: {file_arg} does not exist", file=sys.stderr)
+                sys.exit(1)
+            if not file_path.suffix == ".html":
+                print(f"Warning: {file_arg} is not an HTML file, skipping", file=sys.stderr)
+                continue
+            html_files.append(file_path)
+    else:
+        # Find all HTML files
+        html_files = find_html_files(html_dir)
 
     # Track results
     differences = []
@@ -135,19 +165,27 @@ def main():
     has_changes = len(differences) > 0 or len(new_files) > 0
 
     if has_changes:
-        if new_files:
-            print("NEW FILES (not in HEAD):")
-            print("=" * 80)
+        if args.name_only:
+            # Just list file names
             for rel_path in new_files:
-                print(f"  + {rel_path}")
-            print()
+                print(rel_path)
+            for rel_path, _ in differences:
+                print(rel_path)
+        else:
+            # Show full output
+            if new_files:
+                print("NEW FILES (not in HEAD):")
+                print("=" * 80)
+                for rel_path in new_files:
+                    print(f"  + {rel_path}")
+                print()
 
-        if differences:
-            print("DIFFERENCES FOUND:")
-            print("=" * 80)
-            for rel_path, diff_msg in differences:
-                print(f"\n{rel_path}:")
-                print(diff_msg)
+            if differences:
+                print("DIFFERENCES FOUND:")
+                print("=" * 80)
+                for rel_path, diff_msg in differences:
+                    print(f"\n{rel_path}:")
+                    print(diff_msg)
 
         sys.exit(1)
 
