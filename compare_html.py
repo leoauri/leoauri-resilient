@@ -5,6 +5,7 @@
 # dependencies = [
 #     "beautifulsoup4",
 #     "lxml",
+#     "html5lib",
 # ]
 # ///
 
@@ -14,12 +15,13 @@ using Beautiful Soup for normalized comparison.
 """
 
 from pathlib import Path
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag, NavigableString, Comment
 from typing import Tuple, List, Optional
 import difflib
 import subprocess
 import sys
 import argparse
+import re
 
 
 def find_html_files(directory: Path) -> List[Path]:
@@ -61,22 +63,126 @@ def normalize_html(html_content: str) -> str:
     return soup.prettify()
 
 
+def normalize_attr_value(value: str) -> str:
+    """Normalize attribute values by removing whitespace around commas."""
+    if ',' in value:
+        # Remove spaces around commas in comma-separated values
+        return re.sub(r'\s*,\s*', ',', value)
+    return value
+
+
+def normalize_dom(element):
+    """Recursively normalize all attribute values and comments in a DOM tree in-place."""
+    if isinstance(element, Comment):
+        # Normalize comment whitespace by stripping and adding single spaces
+        normalized = ' ' + str(element).strip() + ' '
+        element.replace_with(Comment(normalized))
+    elif isinstance(element, Tag):
+        # Normalize all attribute values
+        for key in element.attrs:
+            if isinstance(element.attrs[key], str):
+                element.attrs[key] = normalize_attr_value(element.attrs[key])
+
+        # Recursively normalize children (need list() to avoid modification during iteration)
+        for child in list(element.children):
+            normalize_dom(child)
+
+
+def is_whitespace_node(elem) -> bool:
+    """Check if element is a whitespace-only text node."""
+    return (isinstance(elem, NavigableString) and
+            not isinstance(elem, Comment) and
+            str(elem).strip() == '')
+
+
+def elements_equal(elem1, elem2) -> bool:
+    """
+    Recursively compare two Beautiful Soup elements for semantic equality.
+    Normalizes attribute values to ignore whitespace differences.
+    Ignores whitespace-only text nodes.
+    """
+    # Both must be same type
+    if type(elem1) != type(elem2):
+        return False
+
+    # Handle NavigableString (text nodes)
+    if isinstance(elem1, NavigableString):
+        # Ignore comments differences if both are comments
+        if isinstance(elem1, Comment) and isinstance(elem2, Comment):
+            return str(elem1).strip() == str(elem2).strip()
+        return str(elem1) == str(elem2)
+
+    # Handle Tag elements
+    if isinstance(elem1, Tag):
+        # Tag names must match
+        if elem1.name != elem2.name:
+            return False
+
+        # Must have same attributes (keys)
+        if set(elem1.attrs.keys()) != set(elem2.attrs.keys()):
+            return False
+
+        # Compare attribute values with normalization
+        for key in elem1.attrs:
+            val1 = elem1.attrs[key]
+            val2 = elem2.attrs[key]
+
+            # Normalize both values if they're strings
+            if isinstance(val1, str) and isinstance(val2, str):
+                val1 = normalize_attr_value(val1)
+                val2 = normalize_attr_value(val2)
+
+            if val1 != val2:
+                return False
+
+        # Filter out whitespace-only text nodes from children
+        children1 = [c for c in elem1.children if not is_whitespace_node(c)]
+        children2 = [c for c in elem2.children if not is_whitespace_node(c)]
+
+        if len(children1) != len(children2):
+            return False
+
+        # Recursively compare all children
+        for child1, child2 in zip(children1, children2):
+            if not elements_equal(child1, child2):
+                return False
+
+        return True
+
+    # For other types, use default equality
+    return elem1 == elem2
+
+
 def compare_html_content(
     content1: str, content2: str, label1: str, label2: str
 ) -> Tuple[bool, Optional[str]]:
     """
-    Compare two HTML content strings using Beautiful Soup normalization.
+    Compare two HTML content strings by comparing parsed DOM structure.
     Returns (are_equal, diff_message)
     """
     try:
-        # Normalize both files
-        norm1 = normalize_html(content1)
-        norm2 = normalize_html(content2)
+        # Parse both HTML contents into DOM trees using html5lib for better normalization
+        soup1 = BeautifulSoup(content1, 'html5lib')
+        soup2 = BeautifulSoup(content2, 'html5lib')
 
+        # Normalize attribute values before comparison
+        normalize_dom(soup1)
+        normalize_dom(soup2)
+
+        # Compare the parsed DOM structures using custom comparison
+        # This ignores whitespace differences in attributes and formatting
+        if elements_equal(soup1, soup2):
+            return True, None
+
+        # If different after semantic comparison, generate prettified diff for display
+        # html5lib parser already normalizes void elements consistently
+        norm1 = soup1.prettify(formatter='html')
+        norm2 = soup2.prettify(formatter='html')
+
+        # If prettified versions are identical, the differences were only cosmetic
         if norm1 == norm2:
             return True, None
 
-        # Generate diff for display
         diff = difflib.unified_diff(
             norm1.splitlines(keepends=True),
             norm2.splitlines(keepends=True),
