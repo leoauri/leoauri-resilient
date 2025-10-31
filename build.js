@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const pug = require('pug');
+const sass = require('sass');
 
 const SRC_DIR = 'src';
 const BUILD_DIR = 'leoauri.com';
@@ -41,6 +42,25 @@ function processDirectory(srcPath, destPath) {
         } catch (error) {
           console.error(`Error converting ${srcFullPath}:`, error.message);
         }
+      } else if (entry.name === 'main.scss') {
+        // Compile main.scss to main.css using Sass
+        const cssFileName = entry.name.replace(/\.scss$/, '.css');
+        const destCssPath = path.join(destPath, cssFileName);
+
+        console.log(`Compiling ${srcFullPath} -> ${destCssPath}`);
+
+        try {
+          const result = sass.compile(srcFullPath, {
+            style: 'compressed',
+            sourceMap: false
+          });
+          fs.writeFileSync(destCssPath, result.css);
+        } catch (error) {
+          console.error(`Error compiling ${srcFullPath}:`, error.message);
+        }
+      } else if (entry.name.startsWith('_') && entry.name.endsWith('.scss')) {
+        // Skip SCSS partials that start with _
+        console.log(`Skipping SCSS partial ${srcFullPath}`);
       } else {
         // Copy file as-is
         console.log(`Copying ${srcFullPath} -> ${destFullPath}`);

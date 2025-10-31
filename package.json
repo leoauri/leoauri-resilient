@@ -16,5 +16,8 @@
   "description": "",
   "dependencies": {
     "pug": "^3.0.3"
+  },
+  "devDependencies": {
+    "sass": "^1.93.3"
   }
 }
