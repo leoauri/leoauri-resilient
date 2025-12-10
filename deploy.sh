@@ -16,6 +16,13 @@ if [ -z "$SSH_USER" ] || [ -z "$REPO_PATH" ]; then
     exit 1
 fi
 
+# Check for uncommitted changes
+if [[ -n $(git status -s) ]]; then
+    echo "Error: Working directory not clean. Commit or stash changes first."
+    git status -s
+    exit 1
+fi
+
 echo "Pushing to origin..."
 git push origin
 
