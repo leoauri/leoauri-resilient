@@ -1,4 +1,13 @@
+- var root = './'
+- var description = 'Homepage Leo Auri, musician and composer'
+- var bodyClass, current
 block vars
+mixin menuItem(key, href, label)
+  li
+    if current === key
+      a(href=href aria-current='page')= label
+    else
+      a(href=href)= label
 doctype html
 html(lang='en-AU')
   head
@@ -19,7 +28,6 @@ html(lang='en-AU')
 
     link#leoauriVimeoEmbed-css(rel='stylesheet' href=root + 'wp-content/plugins/vimeo-embed/css/vimeo-embed.css' type='text/css' media='all')
     script#shimClassList-js(type='text/javascript' src=root + 'wp-content/themes/leoauri-resilient/js/classList.min.js')
-    //  All in one Favicon 4.7
     link(rel='shortcut icon' href=root + 'wp-content/uploads/2011/12/favicon-2.ico')
     style(type='text/css').
 
@@ -27,30 +35,23 @@ html(lang='en-AU')
       	span.oe_displaynone { display: none; }
 
   body(class=bodyClass)
-    header
-      a(href=root).
+    block siteHeader
+      header
+        a(href=root).
 
-        Leo Auri
+          Leo Auri
     nav
       a#nav-on-switch(href=root + 'navigation/') ☰
       #nav-sidebar
         a#nav-off-switch(href='#') ╳
         ul
-          li#menu-item-755.menu-item.menu-item-type-post_type.menu-item-object-page.menu-item-home.menu-item-755
-            a(href=root) Introduction
-          li#menu-item-763.menu-item.menu-item-type-taxonomy.menu-item-object-category.menu-item-763
-            a(href=root + 'category/albums/') Listen
-          li#menu-item-807.menu-item.menu-item-type-taxonomy.menu-item-object-post_tag.menu-item-807
-            a(href=root + 'tag/monster-mouse/') Monster Mouse
-          li#menu-item-764.menu-item.menu-item-type-taxonomy.menu-item-object-post_tag.menu-item-764
-            a(href=root + 'tag/theater/') Theater
-          li#menu-item-760.menu-item.menu-item-type-post_type.menu-item-object-page.menu-item-760
-            a(href=root + 'recent/') Recent
+          +menuItem('home', root, 'Introduction')
+          +menuItem('listen', root + 'category/albums/', 'Listen')
+          +menuItem('monster-mouse', root + 'tag/monster-mouse/', 'Monster Mouse')
+          +menuItem('theater', root + 'tag/theater/', 'Theater')
+          +menuItem('recent', root + 'recent/', 'Recent')
     main
       block content
-
-      nav.
-
     footer
       nav
         ul
@@ -62,4 +63,6 @@ html(lang='en-AU')
             a(href=root + 'imprint-privacy/' title='imprint/legal/privacy').
 
               imprint/legal/privacy
+    block beforeNavbar
     script#navbar-js(type='text/javascript' src=root + 'wp-content/themes/leoauri-resilient/js/navbar.js')
+    block afterNavbar
