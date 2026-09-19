@@ -27,7 +27,10 @@ function processDirectory(srcPath, destPath) {
       fs.mkdirSync(destFullPath, { recursive: true });
       processDirectory(srcFullPath, destFullPath);
     } else if (entry.isFile()) {
-      if (entry.name.endsWith('.pug')) {
+      if (entry.name.startsWith('_') && entry.name.endsWith('.pug')) {
+        // Skip Pug layouts/partials that start with _
+        console.log(`Skipping Pug partial ${srcFullPath}`);
+      } else if (entry.name.endsWith('.pug')) {
         // Convert .pug to .html using Pug API
         const htmlFileName = entry.name.replace(/\.pug$/, '.html');
         const destHtmlPath = path.join(destPath, htmlFileName);
