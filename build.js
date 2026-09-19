@@ -8,6 +8,8 @@ const sass = require('sass');
 const SRC_DIR = 'src';
 const BUILD_DIR = 'leoauri.com';
 
+let errorCount = 0;
+
 // Clean and create build directory
 if (fs.existsSync(BUILD_DIR)) {
   fs.rmSync(BUILD_DIR, { recursive: true });
@@ -44,6 +46,7 @@ function processDirectory(srcPath, destPath) {
           fs.writeFileSync(destHtmlPath, html);
         } catch (error) {
           console.error(`Error converting ${srcFullPath}:`, error.message);
+          errorCount++;
         }
       } else if (entry.name === 'main.scss') {
         // Compile main.scss to main.css using Sass
@@ -60,6 +63,7 @@ function processDirectory(srcPath, destPath) {
           fs.writeFileSync(destCssPath, result.css);
         } catch (error) {
           console.error(`Error compiling ${srcFullPath}:`, error.message);
+          errorCount++;
         }
       } else if (entry.name.startsWith('_') && entry.name.endsWith('.scss')) {
         // Skip SCSS partials that start with _
@@ -75,4 +79,8 @@ function processDirectory(srcPath, destPath) {
 
 console.log('Building site...');
 processDirectory(SRC_DIR, BUILD_DIR);
+if (errorCount > 0) {
+  console.error(`Build failed with ${errorCount} error(s).`);
+  process.exit(1);
+}
 console.log('Build complete!');
